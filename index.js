@@ -5,41 +5,35 @@ fetch(api)
 .then(response => response.json())
 
 .then((data) =>{
+    const fetchUrl = data.results.map(item => fetch(item.url).then(response => response.json()).catch(()=>{console.log("error")}))
 
-    for(let i=0;i <= 20;i++){
-        let pokemonUrl = data["results"][i]["url"]
-        
-        fetch(pokemonUrl)
-        
-        .then(responsePokemon => responsePokemon.json())
-
-        .then(pokemonData => {
-            let pokemonType = pokemonData["types"][0]["type"]["name"]
-            let pokemonId = pokemonData["id"]
-            let pokemonSprite = pokemonData["sprites"]["front_default"]
-            let pokemonName = data["results"][i]["name"]
-            document.querySelector("#list").innerHTML += `
+    Promise.all(fetchUrl).then((data)=>{
+        data.map((item, id)=>{
+            document.querySelector("#list").innerHTML+=`
             <div class="container">
-                <img src="${pokemonSprite}"/>
-                <p class="name_pokemon">${pokemonName}</p>
-                <p class="id">${pokemonId}#</p>
-            <div/>
+                <img src="${item.sprites.front_default}"/>
+                <p>${item.name}</p>
+            </div>
             `
-            switch(pokemonType){
+            switch(item.types[0].type.name){
+                case "grass":
+                    document.querySelectorAll(".container")[id].style.backgroundImage="linear-gradient(rgb(9, 196, 78),rgb(11, 225, 4))"
+                break;
                 case "fire":
-                    document.querySelectorAll(".container")[i].style.backgroundImage = "linear-gradient(rgb(255, 49, 49),rgb(222, 43, 43)"
+                    document.querySelectorAll(".container")[id].style.backgroundImage="linear-gradient(rgb(218, 2, 2),rgb(225, 4, 4))"
+                break;
+                case "water":
+                    document.querySelectorAll(".container")[id].style.backgroundImage="linear-gradient(rgb(2, 218, 214),rgb(4, 225, 221)"
                 break;
                 case "bug":
-
+                    document.querySelectorAll(".container")[id].style.backgroundImage="linear-gradient(rgb(160, 2, 218),rgb(137, 4, 225))"
                 break;
                 case "normal":
-                    
+                    document.querySelectorAll(".container")[id].style.backgroundImage="linear-gradient(rgb(193, 193, 193),rgb(215, 215, 215)"
                 break;
             }
         })
-
-        .catch(() => console.log("erro!!"))
-    }   
+    })
 })
 
 .catch(() => console.log("error!"))
